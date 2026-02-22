@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>숫자 야구 🎯 뇌 훈련 게임</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Black+Han+Sans&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #e8f4fd;
+    --grass: #2d6a4f;
+    --grass-light: #52b788;
+    --dirt: #c9732c;
+    --cream: #fef9f0;
+    --warm: #fff8ee;
+    --text-dark: #1a1a2e;
+    --text-mid: #4a4a6a;
+    --text-soft: #888aaa;
+    --gold: #f4a818;
+    --gold-light: #ffd166;
+    --red: #e63946;
+    --blue: #457b9d;
+    --green: #2d6a4f;
+    --border: #d4c5a9;
+    --shadow: rgba(0,0,0,0.12);
+    --strike-color: #e63946;
+    --ball-color: #457b9d;
+    --out-color: #888aaa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--sky);
+    font-family: 'Nanum Gothic', sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Sky background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      linear-gradient(180deg, #c8e6f5 0%, #e8f4fd 40%, #f0faf0 70%, #e8f5e9 100%);
+    z-index: 0;
+  }
+
+  /* Floating clouds */
+  .cloud {
+    position: fixed;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.7;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+  }
+  .cloud-1 { width: 120px; height: 36px; top: 8%; left: 5%; animation: cloudFloat 18s linear infinite; }
+  .cloud-1::before { width: 60px; height: 60px; top: -30px; left: 15px; }
+  .cloud-1::after { width: 44px; height: 44px; top: -20px; left: 50px; }
+  .cloud-2 { width: 90px; height: 28px; top: 15%; right: 10%; animation: cloudFloat 24s linear infinite reverse; opacity: 0.5; }
+  .cloud-2::before { width: 45px; height: 45px; top: -22px; left: 10px; }
+  .cloud-2::after { width: 34px; height: 34px; top: -16px; left: 38px; }
+  .cloud-3 { width: 70px; height: 22px; top: 5%; left: 40%; animation: cloudFloat 30s linear infinite; opacity: 0.4; }
+  .cloud-3::before { width: 36px; height: 36px; top: -18px; left: 8px; }
+
+  @keyframes cloudFloat {
+    0% { transform: translateX(-200px); }
+    100% { transform: translateX(calc(100vw + 200px)); }
+  }
+
+  /* Layout */
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 28px 20px 20px;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px var(--shadow);
+    border: 2px solid rgba(212,197,169,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--grass), var(--grass-light), var(--gold), var(--dirt), var(--grass));
+  }
+
+  .header-emoji { font-size: 48px; display: block; margin-bottom: 6px; }
+
+  .header h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: clamp(2rem, 7vw, 3rem);
+    color: var(--text-dark);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .header p {
+    font-size: 15px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  /* Daily mission bar */
+  .daily-bar {
+    background: linear-gradient(135deg, #2d6a4f, #52b788);
+    border-radius: 16px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 16px rgba(45,106,79,0.3);
+  }
+
+  .daily-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .daily-icon { font-size: 28px; }
+
+  .daily-text h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
+  }
+
+  .daily-text p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+    margin-top: 2px;
+  }
+
+  .daily-wins {
+    display: flex;
+    gap: 6px;
+  }
+
+  .win-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    border: 2px solid rgba(255,255,255,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.3s;
+  }
+
+  .win-dot.filled {
+    background: var(--gold);
+    border-color: var(--gold-light);
+    box-shadow: 0 0 10px rgba(244,168,24,0.5);
+  }
+
+  /* Level selector */
+  .level-selector {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 16px var(--shadow);
+    border: 2px solid rgba(212,197,169,0.4);
+  }
+
+  .level-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-soft);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .level-btn {
+    border: 2px solid var(--border);
+    background: var(--warm);
+    border-radius: 14px;
+    padding: 12px 6px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    font-family: 'Nanum Gothic', sans-serif;
+  }
+
+  .level-btn:hover {
+    border-color: var(--grass-light);
+    background: #f0fbf5;
+    transform: translateY(-2px);
+  }
+
+  .level-btn.active {
+    border-color: var(--grass);
+    background: linear-gradient(135deg, #f0fbf5, #d8f3e8);
+    box-shadow: 0 4px 12px rgba(45,106,79,0.2);
+  }
+
+  .level-btn .lv-emoji { font-size: 22px; display: block; margin-bottom: 4px; }
+  .level-btn .lv-name { font-size: 13px; font-weight: 800; color: var(--text-dark); }
+  .level-btn .lv-desc { font-size: 10px; color: var(--text-soft); margin-top: 2px; line-height: 1.3; }
+
+  /* Main game area */
+  .game-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  @media (max-width: 640px) {
+    .game-grid { grid-template-columns: 1fr; }
+    .level-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Game panel */
+  .game-panel {
+    background: white;
+    border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: 0 4px 20px var(--shadow);
+    border: 2px solid rgba(212,197,169,0.4);
+  }
+
+  /* Input display */
+  .input-display {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .input-slot {
+    width: 64px;
+    height: 72px;
+    border: 3px solid var(--border);
+    border-radius: 16px;
+    background: var(--warm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 34px;
+    color: var(--text-dark);
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .input-slot.filled {
+    border-color: var(--grass-light);
+    background: #f0fbf5;
+    box-shadow: 0 4px 12px rgba(82,183,136,0.2);
+  }
+
+  .input-slot.active-slot {
+    border-color: var(--gold);
+    background: #fffbf0;
+    animation: slotPulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes slotPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(244,168,24,0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(244,168,24,0); }
+  }
+
+  .input-slot.correct-anim {
+    animation: correctPop 0.4s ease;
+  }
+
+  @keyframes correctPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  /* Keypad */
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .key-btn {
+    height: 58px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    background: var(--warm);
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 24px;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .key-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.06);
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+
+  .key-btn:hover:not(:disabled)::after { opacity: 1; }
+  .key-btn:active:not(:disabled) { transform: scale(0.93); }
+
+  .key-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .key-btn.out-num {
+    background: #f0f0f0;
+    border-color: #d0d0d0;
+    color: #bbb;
+    text-decoration: line-through;
+  }
+
+  .key-btn.strike-num {
+    background: #fff0f0;
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .key-btn.ball-num {
+    background: #f0f5ff;
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  .key-btn.selected-num {
+    background: linear-gradient(135deg, #d8f3e8, #c0ead8);
+    border-color: var(--grass);
+    color: var(--grass);
+    box-shadow: 0 3px 10px rgba(45,106,79,0.2);
+  }
+
+  .key-delete {
+    font-size: 20px;
+    background: #fff0f0;
+    border-color: #ffcccc;
+    color: var(--red);
+  }
+
+  .key-delete:not(.selected-num) { color: var(--red); }
+
+  /* Action buttons */
+  .action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .btn-submit {
+    background: linear-gradient(135deg, var(--grass), var(--grass-light));
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(45,106,79,0.35);
+    letter-spacing: 1px;
+  }
+
+  .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(45,106,79,0.4); }
+  .btn-submit:active:not(:disabled) { transform: scale(0.97); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-clear {
+    background: white;
+    color: var(--text-mid);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    font-family: 'Nanum Gothic', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-clear:hover { border-color: var(--red); color: var(--red); background: #fff5f5; }
+
+  /* Feedback message */
+  .feedback-box {
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.5;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+
+  .feedback-box.neutral { background: var(--warm); color: var(--text-mid); border: 2px dashed var(--border); }
+  .feedback-box.good { background: #f0fbf5; color: var(--grass); border: 2px solid var(--grass-light); }
+  .feedback-box.bad { background: #fff0f0; color: var(--red); border: 2px solid #ffb3b3; }
+  .feedback-box.win { background: linear-gradient(135deg, #fffbea, #fff3c4); color: var(--dirt); border: 2px solid var(--gold); }
+
+  /* Tries counter */
+  .tries-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--warm);
+    border-radius: 12px;
+    padding: 10px 16px;
+    border: 1.5px solid var(--border);
+  }
+
+  .tries-label { font-size: 13px; color: var(--text-soft); font-weight: 700; }
+  .tries-count {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 22px;
+    color: var(--text-dark);
+  }
+
+  .tries-count.warning { color: var(--red); }
+
+  .tries-pips { display: flex; gap: 4px; }
+  .try-pip {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.2s;
+  }
+  .try-pip.used { background: var(--dirt); }
+  .try-pip.remaining { background: var(--grass-light); }
+
+  /* History panel */
+  .history-panel {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 20px var(--shadow);
+    border: 2px solid rgba(212,197,169,0.4);
+  }
+
+  .history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .history-title {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 17px;
+    color: var(--text-dark);
+  }
+
+  .history-count {
+    background: var(--warm);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 700;
+  }
+
+  /* Hint board */
+  .hint-board {
+    background: var(--warm);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+
+  .hint-board-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-soft);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .hint-nums {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .hint-chip {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text-mid);
+    transition: all 0.3s;
+  }
+
+  .hint-chip.is-out { background: #f0f0f0; border-color: #ccc; color: #bbb; opacity: 0.6; }
+  .hint-chip.is-ball { background: #e8f0ff; border-color: var(--blue); color: var(--blue); }
+  .hint-chip.is-strike { background: #ffebeb; border-color: var(--red); color: var(--red); font-weight: 900; }
+
+  /* History log */
+  .history-log {
+    max-height: 380px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .history-log::-webkit-scrollbar { width: 4px; }
+  .history-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .log-entry {
+    background: var(--warm);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .log-try {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-soft);
+    min-width: 28px;
+  }
+
+  .log-nums {
+    display: flex;
+    gap: 5px;
+    flex: 1;
+  }
+
+  .log-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-dark);
+  }
+
+  .log-result {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .result-badge {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .badge-s { background: #ffebeb; color: var(--red); border: 1px solid #ffb3b3; }
+  .badge-b { background: #e8f0ff; color: var(--blue); border: 1px solid #b3c8ff; }
+  .badge-out { background: #f0f0f0; color: #999; border: 1px solid #ddd; }
+
+  /* Win modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal-card {
+    background: white;
+    border-radius: 28px;
+    padding: 36px 28px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    transform: scale(0.8);
+    transition: transform 0.3s;
+    border: 3px solid var(--gold-light);
+  }
+
+  .modal-overlay.show .modal-card { transform: scale(1); }
+
+  .modal-emoji { font-size: 64px; display: block; margin-bottom: 12px; animation: bounce 0.6s ease infinite alternate; }
+
+  @keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-10px); }
+  }
+
+  .modal-title {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 28px;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+  }
+
+  .modal-sub {
+    font-size: 15px;
+    color: var(--text-mid);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .modal-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .modal-stat {
+    background: var(--warm);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 8px;
+  }
+
+  .modal-stat .val {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 28px;
+    color: var(--grass);
+  }
+
+  .modal-stat .lbl {
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-top: 3px;
+  }
+
+  .modal-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--grass), var(--grass-light));
+    color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 18px;
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(45,106,79,0.35);
+    transition: all 0.2s;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .modal-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(45,106,79,0.4); }
+
+  .modal-btn-secondary {
+    width: 100%;
+    background: transparent;
+    color: var(--text-mid);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    font-family: 'Nanum Gothic', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .modal-btn-secondary:hover { border-color: var(--grass-light); color: var(--grass); }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    z-index: 200;
+    pointer-events: none;
+  }
+
+  /* New game button */
+  .btn-new-game {
+    width: 100%;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    font-family: 'Nanum Gothic', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+  }
+
+  .btn-new-game:hover { border-color: var(--grass-light); color: var(--grass); background: #f0fbf5; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--text-mid);
+    font-weight: 700;
+  }
+
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 3px;
+  }
+
+  .legend-dot.s { background: var(--red); }
+  .legend-dot.b { background: var(--blue); }
+  .legend-dot.o { background: #ccc; }
+</style>
+</head>
+<body>
+
+<!-- Clouds -->
+<div class="cloud cloud-1"></div>
+<div class="cloud cloud-2"></div>
+<div class="cloud cloud-3"></div>
+
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <span class="header-emoji">⚾</span>
+    <h1>숫자 야구</h1>
+    <p>숨겨진 숫자를 논리적으로 맞혀보세요!<br>뇌를 활발하게 사용하는 치매 예방 두뇌 게임</p>
+  </div>
+
+  <!-- Daily mission -->
+  <div class="daily-bar">
+    <div class="daily-left">
+      <span class="daily-icon">📅</span>
+      <div class="daily-text">
+        <h3>오늘의 미션</h3>
+        <p id="dailyMsg">게임을 3번 이겨보세요!</p>
+      </div>
+    </div>
+    <div class="daily-wins" id="dailyWins">
+      <div class="win-dot" data-win="0">🏆</div>
+      <div class="win-dot" data-win="1">🏆</div>
+      <div class="win-dot" data-win="2">🏆</div>
+    </div>
+  </div>
+
+  <!-- Level selector -->
+  <div class="level-selector">
+    <div class="level-title">🎯 난이도 선택</div>
+    <div class="level-grid">
+      <button class="level-btn active" data-level="0" onclick="selectLevel(0)">
+        <span class="lv-emoji">🌱</span>
+        <span class="lv-name">초급</span>
+        <span class="lv-desc">숫자 2개<br>1~5 범위</span>
+      </button>
+      <button class="level-btn" data-level="1" onclick="selectLevel(1)">
+        <span class="lv-emoji">⚾</span>
+        <span class="lv-name">중급</span>
+        <span class="lv-desc">숫자 3개<br>0~9 범위</span>
+      </button>
+      <button class="level-btn" data-level="2" onclick="selectLevel(2)">
+        <span class="lv-emoji">🔥</span>
+        <span class="lv-name">고급</span>
+        <span class="lv-desc">숫자 3개<br>10회 제한</span>
+      </button>
+      <button class="level-btn" data-level="3" onclick="selectLevel(3)">
+        <span class="lv-emoji">🏆</span>
+        <span class="lv-name">달인</span>
+        <span class="lv-desc">숫자 4개<br>15회 제한</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="game-grid">
+
+    <!-- Left: Game panel -->
+    <div class="game-panel">
+
+      <!-- Input display -->
+      <div class="input-display" id="inputDisplay"></div>
+
+      <!-- Feedback -->
+      <div class="feedback-box neutral" id="feedbackBox">
+        숫자를 입력하고 <strong>확인</strong> 버튼을 누르세요 ⚾
+      </div>
+
+      <!-- Keypad -->
+      <div class="keypad" id="keypad"></div>
+
+      <!-- Action buttons -->
+      <div class="action-row">
+        <button class="btn-submit" id="btnSubmit" onclick="submitGuess()" disabled>
+          ⚾ 확인!
+        </button>
+        <button class="btn-clear" onclick="clearInput()">
+          ← 지우기
+        </button>
+      </div>
+
+      <!-- Tries bar -->
+      <div class="tries-bar">
+        <span class="tries-label">시도 횟수</span>
+        <span class="tries-count" id="triesCount">0회</span>
+        <div class="tries-pips" id="triesPips"></div>
+      </div>
+
+      <button class="btn-new-game" onclick="startNewGame()">🔄 새 게임 시작</button>
+    </div>
+
+    <!-- Right: History panel -->
+    <div class="history-panel">
+
+      <!-- Hint board -->
+      <div class="hint-board">
+        <div class="hint-board-title">📌 숫자 힌트판</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot s"></div>스트라이크</div>
+          <div class="legend-item"><div class="legend-dot b"></div>볼</div>
+          <div class="legend-item"><div class="legend-dot o"></div>아웃(제외)</div>
+        </div>
+        <div class="hint-nums" id="hintNums"></div>
+      </div>
+
+      <!-- History log -->
+      <div class="history-header">
+        <span class="history-title">📋 시도 기록</span>
+        <span class="history-count" id="historyCount">0회 시도</span>
+      </div>
+      <div class="history-log" id="historyLog">
+        <div style="text-align:center; color:var(--text-soft); font-size:14px; padding: 20px 0;">
+          아직 시도한 기록이 없어요.<br>숫자를 입력해 보세요! 😊
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Win Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card">
+    <span class="modal-emoji" id="modalEmoji">🎉</span>
+    <div class="modal-title" id="modalTitle">정답입니다!</div>
+    <div class="modal-sub" id="modalSub">훌륭하세요! 논리적 추론으로 숫자를 맞히셨습니다.</div>
+    <div class="modal-stats">
+      <div class="modal-stat">
+        <div class="val" id="modalTries">0</div>
+        <div class="lbl">시도 횟수</div>
+      </div>
+      <div class="modal-stat">
+        <div class="val" id="modalAnswer">-</div>
+        <div class="lbl">정답 숫자</div>
+      </div>
+    </div>
+    <button class="modal-btn" onclick="startNewGame(true)">🔄 다시 하기</button>
+    <button class="modal-btn-secondary" onclick="closeModal()">기록 보기</button>
+  </div>
+</div>
+
+<script>
+// ─── Config ─────────────────────────────────────────
+const LEVELS = [
+  { name: '초급', length: 2, range: 5, maxTries: Infinity, label: '1~4' },
+  { name: '중급', length: 3, range: 10, maxTries: Infinity, label: '0~9' },
+  { name: '고급', length: 3, range: 10, maxTries: 10, label: '0~9, 10회 제한' },
+  { name: '달인', length: 4, range: 10, maxTries: 15, label: '0~9, 15회 제한' },
+];
+
+const CHEERS = {
+  strike: ["오! 감이 좋으신데요? ⭐", "자리를 맞히셨어요! 계속하세요! 🎯", "정확히 맞히셨습니다! 훌륭해요! 💪"],
+  ball: ["숫자가 있어요! 자리만 찾으면 돼요 😊", "숫자는 있는데 자리가 달라요. 생각해보세요!", "거의 다 왔어요! 위치를 바꿔보세요! 🌟"],
+  out: ["틀린 숫자를 찾아냈으니 오히려 좋아요! 🔍", "아웃! 이 숫자들은 없어요. 범위가 좁혀졌네요!", "회색 숫자를 피하면 정답이 보여요! 💡"],
+  good: ["아주 잘하고 계세요! 🎯", "논리적으로 잘 추론하고 계세요! 👏", "멋진 추론이에요! 계속하세요! ✨"],
+};
+
+// ─── State ──────────────────────────────────────────
+let state = {
+  level: 0,
+  target: [],
+  input: [],
+  tries: 0,
+  history: [],
+  numStatus: {}, // 0~9: 'unknown'|'out'|'ball'|'strike'
+  dailyWins: 0,
+  gameOver: false,
+};
+
+// ─── Init ───────────────────────────────────────────
+function init() {
+  const saved = localStorage.getItem('baseball_daily');
+  if (saved) {
+    const data = JSON.parse(saved);
+    const today = new Date().toDateString();
+    if (data.date === today) {
+      state.dailyWins = data.wins || 0;
+    }
+  }
+  updateDailyDisplay();
+  selectLevel(0);
+}
+
+function generateTarget(length, range) {
+  const nums = [];
+  while (nums.length < length) {
+    const r = Math.floor(Math.random() * range);
+    if (!nums.includes(r)) nums.push(r);
+  }
+  return nums;
+}
+
+function startNewGame(fromModal = false) {
+  if (fromModal) closeModal();
+  const lvCfg = LEVELS[state.level];
+  state.target = generateTarget(lvCfg.length, lvCfg.range);
+  state.input = [];
+  state.tries = 0;
+  state.history = [];
+  state.numStatus = {};
+  for (let i = 0; i < lvCfg.range; i++) state.numStatus[i] = 'unknown';
+  state.gameOver = false;
+
+  renderInputSlots();
+  renderKeypad();
+  renderHistory();
+  renderHintNums();
+  renderTries();
+  updateFeedback('neutral', `숫자를 입력하고 <strong>확인</strong> 버튼을 누르세요 ⚾`);
+  document.getElementById('btnSubmit').disabled = true;
+
+  console.log('[DEBUG] 정답:', state.target); // for testing
+}
+
+function selectLevel(idx) {
+  state.level = idx;
+  document.querySelectorAll('.level-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === idx);
+  });
+  startNewGame();
+}
+
+// ─── Game Logic ─────────────────────────────────────
+function getResult(guess, target) {
+  let strikes = 0, balls = 0;
+  guess.forEach((n, i) => {
+    if (n === target[i]) strikes++;
+    else if (target.includes(n)) balls++;
+  });
+  return { strikes, balls, out: strikes === 0 && balls === 0 };
+}
+
+function submitGuess() {
+  if (state.input.length !== LEVELS[state.level].length || state.gameOver) return;
+
+  const guess = [...state.input];
+  const result = getResult(guess, state.target);
+  state.tries++;
+
+  // Update num status for hints
+  guess.forEach((n, i) => {
+    if (n === state.target[i]) {
+      state.numStatus[n] = 'strike';
+    } else if (state.target.includes(n)) {
+      if (state.numStatus[n] !== 'strike') state.numStatus[n] = 'ball';
+    } else {
+      if (state.numStatus[n] === 'unknown') state.numStatus[n] = 'out';
+    }
+  });
+
+  // Add to history
+  state.history.push({ guess, result });
+
+  // Clear input
+  state.input = [];
+
+  // Update UI
+  renderInputSlots();
+  renderKeypad();
+  renderHistory();
+  renderHintNums();
+  renderTries();
+  document.getElementById('btnSubmit').disabled = true;
+
+  // Check win
+  if (result.strikes === LEVELS[state.level].length) {
+    state.gameOver = true;
+    state.dailyWins++;
+    saveDailyWins();
+    updateDailyDisplay();
+    setTimeout(() => showWinModal(), 500);
+    return;
+  }
+
+  // Check lose (for limited tries)
+  const lvCfg = LEVELS[state.level];
+  if (state.tries >= lvCfg.maxTries) {
+    state.gameOver = true;
+    updateFeedback('bad', `😢 아쉽네요! 정답은 <strong>${state.target.join(' ')}</strong> 이었어요. 다시 도전해보세요!`);
+    return;
+  }
+
+  // Feedback
+  let msg = '';
+  let cls = 'neutral';
+  if (result.out) {
+    cls = 'bad';
+    msg = CHEERS.out[Math.floor(Math.random() * CHEERS.out.length)];
+    msg += ` | 결과: <strong style="color:var(--out-color)">${result.strikes}S ${result.balls}B OUT</strong>`;
+  } else if (result.strikes > 0 && result.balls === 0) {
+    cls = 'good';
+    msg = CHEERS.strike[Math.floor(Math.random() * CHEERS.strike.length)];
+    msg += ` | 결과: <strong style="color:var(--strike-color)">${result.strikes}스트라이크</strong>`;
+  } else if (result.balls > 0 && result.strikes === 0) {
+    cls = 'neutral';
+    msg = CHEERS.ball[Math.floor(Math.random() * CHEERS.ball.length)];
+    msg += ` | 결과: <strong style="color:var(--ball-color)">${result.balls}볼</strong>`;
+  } else {
+    cls = 'good';
+    msg = CHEERS.good[Math.floor(Math.random() * CHEERS.good.length)];
+    msg += ` | 결과: <strong>${result.strikes}S ${result.balls}B</strong>`;
+  }
+  updateFeedback(cls, msg);
+}
+
+// ─── Input handlers ─────────────────────────────────
+function pressKey(num) {
+  if (state.gameOver) return;
+  const len = LEVELS[state.level].length;
+  if (state.input.length >= len) return;
+  if (state.input.includes(num)) {
+    updateFeedback('bad', `❌ <strong>${num}</strong> 은 이미 입력하셨어요! 중복 없이 입력하세요.`);
+    return;
+  }
+  state.input.push(num);
+  renderInputSlots();
+  renderKeypad();
+
+  if (state.input.length === len) {
+    document.getElementById('btnSubmit').disabled = false;
+    updateFeedback('good', `입력 완료! <strong>${state.input.join('  ')}</strong> → 확인 버튼을 누르세요 ✅`);
+  } else {
+    updateFeedback('neutral', `숫자를 입력하세요 (${state.input.length}/${len})`);
+  }
+}
+
+function deleteKey() {
+  if (state.gameOver) return;
+  if (state.input.length === 0) return;
+  state.input.pop();
+  renderInputSlots();
+  renderKeypad();
+  document.getElementById('btnSubmit').disabled = true;
+  updateFeedback('neutral', `숫자를 입력하고 <strong>확인</strong> 버튼을 누르세요 ⚾`);
+}
+
+function clearInput() {
+  if (state.gameOver) return;
+  state.input = [];
+  renderInputSlots();
+  renderKeypad();
+  document.getElementById('btnSubmit').disabled = true;
+  updateFeedback('neutral', `숫자를 입력하고 <strong>확인</strong> 버튼을 누르세요 ⚾`);
+}
+
+// ─── Render ─────────────────────────────────────────
+function renderInputSlots() {
+  const len = LEVELS[state.level].length;
+  const el = document.getElementById('inputDisplay');
+  el.innerHTML = '';
+  for (let i = 0; i < len; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'input-slot';
+    if (state.input[i] !== undefined) {
+      slot.textContent = state.input[i];
+      slot.classList.add('filled');
+    } else if (i === state.input.length) {
+      slot.classList.add('active-slot');
+    }
+    el.appendChild(slot);
+  }
+}
+
+function renderKeypad() {
+  const lvCfg = LEVELS[state.level];
+  const el = document.getElementById('keypad');
+  el.innerHTML = '';
+
+  for (let i = 0; i < lvCfg.range; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'key-btn';
+    btn.textContent = i;
+    const status = state.numStatus[i] || 'unknown';
+    if (status === 'out') btn.classList.add('out-num');
+    else if (status === 'ball') btn.classList.add('ball-num');
+    else if (status === 'strike') btn.classList.add('strike-num');
+    if (state.input.includes(i)) btn.classList.add('selected-num');
+    btn.disabled = state.gameOver;
+    btn.onclick = () => pressKey(i);
+    el.appendChild(btn);
+  }
+
+  // Delete button
+  const del = document.createElement('button');
+  del.className = 'key-btn key-delete';
+  del.innerHTML = '⌫';
+  del.onclick = deleteKey;
+  del.disabled = state.gameOver;
+  el.appendChild(del);
+}
+
+function renderHistory() {
+  const el = document.getElementById('historyLog');
+  const count = document.getElementById('historyCount');
+  count.textContent = `${state.history.length}회 시도`;
+
+  if (state.history.length === 0) {
+    el.innerHTML = '<div style="text-align:center; color:var(--text-soft); font-size:14px; padding: 20px 0;">아직 시도한 기록이 없어요.<br>숫자를 입력해 보세요! 😊</div>';
+    return;
+  }
+
+  el.innerHTML = '';
+  // Show newest first
+  [...state.history].reverse().forEach((h, ri) => {
+    const i = state.history.length - 1 - ri;
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+
+    const tryLabel = document.createElement('div');
+    tryLabel.className = 'log-try';
+    tryLabel.textContent = `${i + 1}회`;
+
+    const numsDiv = document.createElement('div');
+    numsDiv.className = 'log-nums';
+    h.guess.forEach(n => {
+      const chip = document.createElement('div');
+      chip.className = 'log-num';
+      chip.textContent = n;
+      numsDiv.appendChild(chip);
+    });
+
+    const resDiv = document.createElement('div');
+    resDiv.className = 'log-result';
+
+    if (h.result.out) {
+      const badge = document.createElement('div');
+      badge.className = 'result-badge badge-out';
+      badge.textContent = 'OUT';
+      resDiv.appendChild(badge);
+    } else {
+      if (h.result.strikes > 0) {
+        const badge = document.createElement('div');
+        badge.className = 'result-badge badge-s';
+        badge.textContent = `${h.result.strikes}S`;
+        resDiv.appendChild(badge);
+      }
+      if (h.result.balls > 0) {
+        const badge = document.createElement('div');
+        badge.className = 'result-badge badge-b';
+        badge.textContent = `${h.result.balls}B`;
+        resDiv.appendChild(badge);
+      }
+      if (h.result.strikes === 0 && h.result.balls === 0) {
+        const badge = document.createElement('div');
+        badge.className = 'result-badge badge-out';
+        badge.textContent = 'OUT';
+        resDiv.appendChild(badge);
+      }
+    }
+
+    entry.appendChild(tryLabel);
+    entry.appendChild(numsDiv);
+    entry.appendChild(resDiv);
+    el.appendChild(entry);
+  });
+}
+
+function renderHintNums() {
+  const lvCfg = LEVELS[state.level];
+  const el = document.getElementById('hintNums');
+  el.innerHTML = '';
+  for (let i = 0; i < lvCfg.range; i++) {
+    const chip = document.createElement('div');
+    chip.className = 'hint-chip';
+    chip.textContent = i;
+    const s = state.numStatus[i] || 'unknown';
+    if (s === 'out') chip.classList.add('is-out');
+    else if (s === 'ball') chip.classList.add('is-ball');
+    else if (s === 'strike') chip.classList.add('is-strike');
+    el.appendChild(chip);
+  }
+}
+
+function renderTries() {
+  const lvCfg = LEVELS[state.level];
+  const el = document.getElementById('triesCount');
+  el.textContent = `${state.tries}회`;
+
+  const limited = isFinite(lvCfg.maxTries);
+  if (limited) {
+    const remaining = lvCfg.maxTries - state.tries;
+    el.textContent = `${state.tries}/${lvCfg.maxTries}회`;
+    if (remaining <= 3) el.classList.add('warning');
+    else el.classList.remove('warning');
+  }
+
+  // Pips
+  const pips = document.getElementById('triesPips');
+  pips.innerHTML = '';
+  if (limited && lvCfg.maxTries <= 15) {
+    for (let i = 0; i < lvCfg.maxTries; i++) {
+      const pip = document.createElement('div');
+      pip.className = 'try-pip' + (i < state.tries ? ' used' : ' remaining');
+      pips.appendChild(pip);
+    }
+  }
+}
+
+function updateFeedback(cls, msg) {
+  const el = document.getElementById('feedbackBox');
+  el.className = 'feedback-box ' + cls;
+  el.innerHTML = msg;
+}
+
+// ─── Modal ───────────────────────────────────────────
+function showWinModal() {
+  const msgs = [
+    "대단하세요! 논리적 추론으로 숫자를 맞히셨습니다! 🎊",
+    "훌륭해요! 뇌를 아주 잘 사용하고 계세요! 🧠",
+    "멋진 추론이었어요! 다음 게임도 파이팅! 💪",
+    "완벽해요! 오늘 뇌 훈련 성공! 🌟",
+  ];
+  document.getElementById('modalEmoji').textContent = ['🎉','🏆','⭐','🎊'][Math.floor(Math.random()*4)];
+  document.getElementById('modalTitle').textContent = '정답입니다!';
+  document.getElementById('modalSub').textContent = msgs[Math.floor(Math.random()*msgs.length)];
+  document.getElementById('modalTries').textContent = state.tries + '회';
+  document.getElementById('modalAnswer').textContent = state.target.join(' ');
+
+  document.getElementById('modalOverlay').classList.add('show');
+  spawnConfetti();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+function spawnConfetti() {
+  const colors = ['#f4a818','#e63946','#2d6a4f','#457b9d','#52b788','#ffd166'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left: ${Math.random()*100}vw;
+      top: -10px;
+      background: ${colors[Math.floor(Math.random()*colors.length)]};
+      width: ${6+Math.random()*8}px;
+      height: ${6+Math.random()*8}px;
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      animation: confettiFall ${1.5 + Math.random()*2}s ease ${Math.random()*0.8}s forwards;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+}
+
+// Add confetti keyframes dynamically
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes confettiFall {
+    0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(${Math.random()*720}deg); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+
+// ─── Daily wins ──────────────────────────────────────
+function saveDailyWins() {
+  localStorage.setItem('baseball_daily', JSON.stringify({
+    date: new Date().toDateString(),
+    wins: state.dailyWins,
+  }));
+}
+
+function updateDailyDisplay() {
+  const dots = document.querySelectorAll('.win-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.toggle('filled', i < state.dailyWins);
+  });
+  const msgs = [
+    '게임을 3번 이겨보세요!',
+    '잘하셨어요! 2번 더 이겨보세요! 🌟',
+    '거의 다 왔어요! 한 번만 더! 💪',
+    '오늘의 미션 완료! 대단해요! 🏆🏆🏆',
+  ];
+  document.getElementById('dailyMsg').textContent = msgs[Math.min(state.dailyWins, 3)];
+}
+
+// ─── Keyboard support ────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (state.gameOver) return;
+  const lvCfg = LEVELS[state.level];
+  if (e.key >= '0' && e.key <= '9') {
+    const n = parseInt(e.key);
+    if (n < lvCfg.range) pressKey(n);
+  }
+  if (e.key === 'Backspace') deleteKey();
+  if (e.key === 'Enter') {
+    if (state.input.length === lvCfg.length) submitGuess();
+  }
+});
+
+// ─── Start ───────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
